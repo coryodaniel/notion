@@ -28,10 +28,10 @@ Specify an app `:name` to be prepended to all events dispatched to telemetry. Op
 defmodule MyApp.Instrumentation do
   use Notion, name: :my_app, labels: %{env: "prod"}
 
-  @doc "Docs for my [:my_app, :cc_charge, :succeeded] event`
+  @doc "Docs for my [:my_app, :cc_charge, :succeeded] event"
   defevent [:cc_charge, :succeeded]
 
-  @doc "Docs for my [:my_app, :cc_charge, :failed] event`
+  @doc "Docs for my [:my_app, :cc_charge, :failed] event"
   defevent [:cc_charge, :failed]
 end
 ```

@@ -5,13 +5,17 @@ defmodule Notion.MixProject do
     [
       app: :notion,
       description: description(),
-      version: "0.1.0",
+      version: "0.1.1",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       package: package(),
       elixirc_paths: elixirc_paths(Mix.env()),
-      dialyzer: [plt_add_apps: [:mix, :eex]]
+      dialyzer: [plt_add_apps: [:mix, :eex]],
+      docs: [
+        extras: ["README.md"],
+        main: "readme"
+      ]
     ]
   end
 
@@ -50,6 +54,6 @@ defmodule Notion.MixProject do
   end
 
   defp description do
-    ""
+    "Notion is a thin wrapper around telemetry that defines functions that dispatch telemetry events, documentation, and specs for your applications events."
   end
 end

@@ -1,13 +1,13 @@
 defmodule Notion do
   @moduledoc """
-  Thin wrapper around [`:telemetry`](https://github.com/beam-telemetry/telemetry) that defines functions, documentation, and specs for your applications events.
+  Notion is a thin wrapper around [`:telemetry`](https://github.com/beam-telemetry/telemetry) that defines functions that dispatch telemetry events, documentation, and specs for your applications events.
   """
 
   @doc false
   defmacro __using__(opts) do
     quote bind_quoted: [opts: opts] do
       @notion_name opts[:name]
-      @notion_labels opts[:labels]
+      @notion_labels opts[:labels] || %{}
 
       Module.register_attribute(__MODULE__, :events, accumulate: true, persist: false)
       @before_compile Notion

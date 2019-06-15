@@ -41,27 +41,13 @@ defmodule Notion do
     end
   end
 
-  defmacro defevent(name) when is_atom(name) do
-    quote do
-      @event [@notion_name, unquote(name)]
-      @events @event
-
-      @spec unquote(name)(map) :: :ok
-      # credo:disable-for-next-line
-      def unquote(name)(measurements \\ %{}) do
-        :telemetry.execute(@event, measurements, labels())
+  defmacro defevent(event) do
+    names =
+      case event do
+        event when is_list(event) -> event
+        event -> [event]
       end
 
-      @spec unquote(name)(map, map) :: :ok
-      # credo:disable-for-next-line
-      def unquote(name)(measurements, metadata) do
-        labels = labels(metadata)
-        :telemetry.execute(@event, measurements, labels)
-      end
-    end
-  end
-
-  defmacro defevent(names) when is_list(names) do
     function_name = Enum.join(names, "_")
 
     quote do

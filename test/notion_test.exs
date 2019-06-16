@@ -52,5 +52,15 @@ defmodule NotionTest do
     test "defines an arity 1 function" do
       assert Bar.greet(%{"latency" => 3}) == :ok
     end
+
+    test "dispatches to telemetry", %{test: test_id} do
+      log_handler = fn name, measurements, metadata, _ ->
+        assert true
+      end
+
+      :telemetry.attach(test_id, [:bar, :greet], log_handler, nil)
+
+      Bar.greet(%{latency: 1})
+    end
   end
 end

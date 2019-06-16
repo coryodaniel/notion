@@ -35,7 +35,7 @@ defmodule Notion do
     quote do
       @spec events() :: list(list(atom))
       @doc """
-      List of all events emitted by this instrumenter. Great for use with `:telemetry.attach_many/4'
+      List of all events emitted by this instrumenter. Great for use with `:telemetry.attach_many/4`
       """
       def events(), do: unquote(events)
     end

@@ -54,15 +54,9 @@ defmodule Notion do
       @event [@notion_name | unquote(names)]
       @events @event
 
-      @spec unquote(:"#{function_name}")(map) :: :ok
-      # credo:disable-for-next-line
-      def unquote(:"#{function_name}")(measurements \\ %{}) do
-        :telemetry.execute(@event, measurements, labels())
-      end
-
       @spec unquote(:"#{function_name}")(map, map) :: :ok
       # credo:disable-for-next-line
-      def unquote(:"#{function_name}")(measurements, metadata) do
+      def unquote(:"#{function_name}")(measurements \\ %{}, metadata \\ %{}) do
         labels = labels(metadata)
         :telemetry.execute(@event, measurements, labels)
       end

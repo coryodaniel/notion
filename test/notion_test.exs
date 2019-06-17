@@ -2,31 +2,40 @@ defmodule NotionTest do
   use ExUnit.Case
   doctest Notion
 
-  defmodule Bar do
-    use Notion, name: :bar, labels: %{env: "prod"}
+  describe "moduledoc" do
+    test "provides a moduledoc template" do
+      Code.ensure_loaded(Foo)
+      {:docs_v1, _, _, _, %{"en" => docs}, _, _} = Code.fetch_docs(Foo)
 
-    @doc "When someone is greeted"
-    defevent(:greet)
+      assert String.contains?(docs, "`Foo` is a thin wrapper around")
+      assert String.contains?(docs, "`[:foo, :qux]`")
+    end
 
-    @doc "When that thing is dispatched successfully"
-    defevent([:dispatch, :succeeded])
+    test "interpolates variables if using a custom moduledoc" do
+      Code.ensure_loaded(Bar)
+      {:docs_v1, _, _, _, %{"en" => docs}, _, _} = Code.fetch_docs(Bar)
+
+      assert String.contains?(docs, "Hi, I am bar")
+      assert String.contains?(docs, "`[:bar, :dispatch, :succeeded]`")
+      assert String.contains?(docs, ~s[%{env: "prod"}])
+    end
   end
 
   test "name/0 returns the name of the instrumenter" do
     assert Bar.name() == :bar
   end
 
-  test "labels/0 returns the instrumenter's default labels/metadata" do
-    assert Bar.labels() == %{env: "prod"}
+  test "metadata/0 returns the instrumenter's default metadata/metadata" do
+    assert Bar.metadata() == %{env: "prod"}
   end
 
-  describe "labels/1" do
-    test "labels/1 merges a map with the instrumenter's default labels/metadata" do
-      assert Bar.labels(%{region: "us-west"}) == %{env: "prod", region: "us-west"}
+  describe "metadata/1" do
+    test "metadata/1 merges a map with the instrumenter's default metadata/metadata" do
+      assert Bar.metadata(%{region: "us-west"}) == %{env: "prod", region: "us-west"}
     end
 
-    test "labels/1 overrides values in the instrumenter's default labels/metadata" do
-      assert Bar.labels(%{env: "staging"}) == %{env: "staging"}
+    test "metadata/1 overrides values in the instrumenter's default metadata/metadata" do
+      assert Bar.metadata(%{env: "staging"}) == %{env: "staging"}
     end
   end
 
@@ -45,16 +54,12 @@ defmodule NotionTest do
       assert Bar.dispatch_succeeded(%{"time" => 5}, %{"region" => "us-east"}) == :ok
     end
 
-    test "defines an arity 0 function" do
-      assert Bar.greet() == :ok
-    end
-
     test "defines an arity 1 function" do
       assert Bar.greet(%{"latency" => 3}) == :ok
     end
 
     test "dispatches to telemetry", %{test: test_id} do
-      log_handler = fn name, measurements, metadata, _ ->
+      log_handler = fn _name, _measurements, _metadata, _ ->
         assert true
       end
 

@@ -5,7 +5,7 @@ defmodule Notion.MixProject do
     [
       app: :notion,
       description: description(),
-      version: "0.1.2",
+      version: "0.2.0",
       elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
@@ -13,12 +13,13 @@ defmodule Notion.MixProject do
       elixirc_paths: elixirc_paths(Mix.env()),
       dialyzer: [plt_add_apps: [:mix, :eex]],
       docs: [
-        extras: ["README.md"],
+        extras: ["README.md", "CHANGELOG.md"],
         main: "readme"
       ]
     ]
   end
 
+  defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
   # Run "mix help compile.app" to learn about applications.

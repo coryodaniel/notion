@@ -41,7 +41,62 @@ defmodule Notion do
     end
   end
 
-  defmacro defevent(event) do
+  defmodule EventOptions do
+    @moduledoc "Event Options"
+
+    defstruct [:t_measurements, :t_metadata, :defaults]
+
+    @doc false
+    def defaults() do
+      [
+        t_measurements: {:map, [], Elixir},
+        t_metadata: {:map, [], Elixir},
+        defaults: :measurements_and_metadata
+      ]
+    end
+
+    @typedoc """
+    Specifies which arguments get defaults:
+
+    * `:measurements_and_metadata`: both arguments
+    * `:metadata_only`: only the last argument
+    * `:nil`: neither argument
+    """
+    @type defaults_value :: :measurements_and_metadata | :metadata_only | nil
+
+    @typedoc """
+    `defevent` macro options:
+
+    * `t_measurements`: the typespec of your measurements (default: `map`)
+    * `t_metadata`: the typespec of your metadata (default: `map`)
+    * `defaults`: which arguments get default arguments
+
+    For Dialyzer to not complain, you [MUST]:
+
+    * Use atoms for your measurement and metadata keys
+
+    * Set `defaults` to `:metadata_only` if you have any `required` keys in your measurements,
+      and to `:nil` if you have any `required` keys in your `metadata`.
+
+    [MUST]: https://tools.ietf.org/html/rfc2119#section-1
+    """
+    @type option ::
+            {:t_measurements, term()}
+            | {:t_metadata, term()}
+            | {:defaults, defaults_value()}
+
+    @doc false
+    def from(options) when is_list(options) do
+      options = Keyword.merge(defaults(), options)
+      IO.inspect(options)
+      struct!(__MODULE__, options)
+    end
+  end
+
+  @spec defevent(list(atom), list(EventOptions.options())) :: term()
+  defmacro defevent(event, options \\ []) do
+    event_options = EventOptions.from(options)
+
     names =
       case event do
         event when is_list(event) -> event
@@ -50,16 +105,51 @@ defmodule Notion do
 
     function_name = Enum.join(names, "_")
 
-    quote do
-      @event [@notion_name | unquote(names)]
-      @events @event
+    case event_options.defaults do
+      :measurements_and_metadata ->
+        quote do
+          @event [@notion_name | unquote(names)]
+          @events @event
+          @spec unquote(:"#{function_name}")(
+                  unquote(event_options.t_measurements),
+                  unquote(event_options.t_metadata)
+                ) :: :ok
+          # credo:disable-for-next-line
+          def unquote(:"#{function_name}")(measurements \\ %{}, metadata \\ %{}) do
+            labels = labels(metadata)
+            :telemetry.execute(@event, measurements, labels)
+          end
+        end
 
-      @spec unquote(:"#{function_name}")(map, map) :: :ok
-      # credo:disable-for-next-line
-      def unquote(:"#{function_name}")(measurements \\ %{}, metadata \\ %{}) do
-        labels = labels(metadata)
-        :telemetry.execute(@event, measurements, labels)
-      end
+      :metadata_only ->
+        quote do
+          @event [@notion_name | unquote(names)]
+          @events @event
+          @spec unquote(:"#{function_name}")(
+                  unquote(event_options.t_measurements),
+                  unquote(event_options.t_metadata)
+                ) :: :ok
+          # credo:disable-for-next-line
+          def unquote(:"#{function_name}")(measurements, metadata \\ %{}) do
+            labels = labels(metadata)
+            :telemetry.execute(@event, measurements, labels)
+          end
+        end
+
+      nil ->
+        quote do
+          @event [@notion_name | unquote(names)]
+          @events @event
+          @spec unquote(:"#{function_name}")(
+                  unquote(event_options.t_measurements),
+                  unquote(event_options.t_metadata)
+                ) :: :ok
+          # credo:disable-for-next-line
+          def unquote(:"#{function_name}")(measurements, metadata) do
+            labels = labels(metadata)
+            :telemetry.execute(@event, measurements, labels)
+          end
+        end
     end
   end
 end

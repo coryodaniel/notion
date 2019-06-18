@@ -107,3 +107,18 @@ end
 ```
 
 Documentation can be be found at [https://hexdocs.pm/notion](https://hexdocs.pm/notion).
+
+## Etc
+
+### Credo: Modules should have a @moduledoc tag.
+
+There is currently an issue open on [credo](https://github.com/rrrene/credo/issues/530) to add support for checking if a `use`d module adds a `@moduledoc`.
+
+In the meantime if you want to mute the error, you can add `@moduledoc false` to the top of your instrumenter and docs will still be generated.
+
+```elixir
+defmodule Bar.Instrumenter do
+  @moduledoc false
+  use Notion, ...
+end
+```

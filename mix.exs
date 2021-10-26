@@ -32,14 +32,13 @@ defmodule Notion.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:telemetry, "~> 0.4.0"},
-      # {:prometheus_ex, "~> 3.0"},
+      {:telemetry, "~> 1.0 or ~> 0.4"},
 
       # Dev deps
-      {:credo, "~> 1.0.0", only: [:dev, :test], runtime: false},
-      {:dialyxir, "~> 1.0.0-rc.6", only: [:dev, :test], runtime: false},
-      {:ex_doc, "~> 0.20", only: :dev},
-      {:mix_test_watch, "~> 0.8", only: :dev, runtime: false}
+      {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
+      {:dialyxir, "~> 1.1", only: [:dev, :test], runtime: false},
+      {:ex_doc, "~> 0.25.5", only: [:dev]},
+      {:mix_test_watch, "~> 1.1", only: :dev, runtime: false}
     ]
   end
 

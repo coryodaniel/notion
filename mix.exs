@@ -32,7 +32,7 @@ defmodule Notion.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
-      {:telemetry, "~> 0.4.0"},
+      {:telemetry, "~> 1.0"},
       # {:prometheus_ex, "~> 3.0"},
 
       # Dev deps
